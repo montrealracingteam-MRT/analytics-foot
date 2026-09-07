@@ -24,20 +24,33 @@ const defaultData = {
             "Auxerre": { ppm: 0.00, pts: 0, j: 3, g: 0, n: 0, p: 3, gf: 4, ga: 11, off_power: 0.67, def_power: 0.53, conf: 1.6 }
         },
         exactitude: [
-            { journee: "J1", score: "66.7%", conf: "4.4/10" },
-            { journee: "J2", score: "11.1%", conf: "4.4/10" },
-            { journee: "J3", score: "44.4%", conf: "5.6/10" }
+            { journee: "J1", score: "66.7%", conf: "4.4/10", apprentissage: "Basique, données partielles (3/9)" },
+            { journee: "J2", score: "11.1%", conf: "4.4/10", apprentissage: "Momentum trop simple = pire exactitude" },
+            { journee: "J3", score: "44.4%", conf: "5.6/10", apprentissage: "Correction patterns (Strasbourg, PSG) = amélioration" },
+            { journee: "J4", score: "~50-55% (esp.)", conf: "6.2/10", apprentissage: "argmax(%) strict + max 7% surprise justifiée" }
+        ],
+        lecons_apprises_full: [
+            { journee: "J1", erreur: "Données partielles (3 matchs seulement)", apprentissage: "66.7% = lucky, pas vraie méthodologie" },
+            { journee: "J2", erreur: "Momentum trop simpliste. Sur-estimation nuls (38% vs 22% réel)", apprentissage: "11.1% = PIRE exactitude. Besoin refonte." },
+            { journee: "J3", erreur: "Strasbourg 2-6 goleada (incompréhensible). PSG toujours mal (0V-2N-1P)", apprentissage: "44.4% = correction J2. 5 indices math créés. Strasbourg 8 buts = meilleure attaque." },
+            { journee: "J4", erreur: "Strasbourg X malgré Monaco 43% > 29%. Illogique statistiquement!", apprentissage: "CORRECTION: argmax(%) strict. Auxerre/PSG = patterns = baisse confiance. Max 7% surprise." }
         ],
         pronostics_j4: [
-            { match: "Rennes vs Marseille", p1: 74, pn: 10, p2: 16, prono: "1", score: "2-2", conf: 5.8 },
-            { match: "Strasbourg vs Monaco", p1: 29, pn: 28, p2: 43, prono: "X", score: "2-1", conf: 7.3 },
-            { match: "Auxerre vs Nice", p1: 43, pn: 23, p2: 34, prono: "X", score: "1-0", conf: 2.4 },
-            { match: "Paris FC vs Lyon", p1: 53, pn: 19, p2: 28, prono: "1", score: "2-2", conf: 8.0 },
-            { match: "Lorient vs Toulouse", p1: 72, pn: 11, p2: 17, prono: "1", score: "0-0", conf: 4.0 },
-            { match: "Le Havre vs Angers", p1: 42, pn: 23, p2: 35, prono: "X", score: "0-1", conf: 3.4 },
-            { match: "Lille vs Troyes", p1: 74, pn: 10, p2: 15, prono: "1", score: "1-1", conf: 5.9 },
-            { match: "Lens vs Le Mans", p1: 59, pn: 16, p2: 24, prono: "1", score: "2-1", conf: 4.0 },
-            { match: "PSG vs Brest", p1: 37, pn: 25, p2: 38, prono: "X", score: "1-2", conf: 4.7 }
+            { match: "Rennes vs Marseille", p1: 74, pn: 10, p2: 16, prono: "1", score: "2-1", conf: 7.2, justif: "74% > autres. Rennes forme (2V-1N). Marseille crise." },
+            { match: "Strasbourg vs Monaco", p1: 29, pn: 28, p2: 43, prono: "2", score: "1-2", conf: 7.1, justif: "Monaco leader (43% > 29%). Def Monaco 4.62 power." },
+            { match: "Auxerre vs Nice", p1: 43, pn: 23, p2: 34, prono: "X", score: "1-1", conf: 3.8, justif: "⚠️ LEÇON: Auxerre catastrophe (0pts, -7 diff) = nul probable vs équipe écrasée." },
+            { match: "Paris FC vs Lyon", p1: 53, pn: 19, p2: 28, prono: "1", score: "2-0", conf: 7.9, justif: "53% > autres. PFC leader. Meilleure défense (0.67 GA/J)." },
+            { match: "Lorient vs Toulouse", p1: 72, pn: 11, p2: 17, prono: "1", score: "2-0", conf: 6.5, justif: "72% > autres. Lorient 4pts vs Toulouse 1pt. Momentum clair." },
+            { match: "Le Havre vs Angers", p1: 42, pn: 23, p2: 35, prono: "1", score: "1-1", conf: 4.5, justif: "42% vs 35% = très serré. Confiance basse = pattern uncertain." },
+            { match: "Lille vs Troyes", p1: 74, pn: 10, p2: 15, prono: "1", score: "2-0", conf: 7.8, justif: "74% > autres. Lille leader. Troyes post-6-2 (crise)." },
+            { match: "Lens vs Le Mans", p1: 59, pn: 16, p2: 24, prono: "1", score: "2-0", conf: 5.8, justif: "59% > autres. Lens domicile (+3%). Power off 1.00 > 0.83." },
+            { match: "PSG vs Brest", p1: 37, pn: 25, p2: 38, prono: "X", score: "1-1", conf: 5.2, justif: "⚠️ LEÇON: 38% ≈ 37% (trop serré). PSG pattern = nuls (67%). Brest équilibré." }
+        ],
+        lecons_apprises: [
+            { journee: "J1", erreur: "Basique, données partielles (3/9 visibles)", apprentissage: "Exactitude 66.7% = lucky, pas méthodologie" },
+            { journee: "J2", erreur: "Momentum trop simpliste. Sous-estimé nuls.", apprentissage: "11.1% = pire score. Nuls réels 22% vs prédit 38%." },
+            { journee: "J3", erreur: "Strasbourg 2-6 = goleada incompréhensible. PSG toujours mal évalué (0V-2N-1P)", apprentissage: "44.4% = correction de J2. Strasbourg meilleure attaque (8 buts). PSG crise profonde." },
+            { journee: "J4", erreur: "Strasbourg vs Monaco = prono X alors que Monaco 43% > 29% (ILLOGIQUE!)", apprentissage: "CORRECTION: argmax(%) + max 7% surprise justifiée. Auxerre/PSG = patterns clairs = baisse confiance." }
         ]
     },
     ldc: {
@@ -72,6 +85,7 @@ let appData = loadData();
 document.addEventListener('DOMContentLoaded', function() {
     renderLigue1();
     renderLDC();
+    renderLessonsLearned();
     document.getElementById('last-update').textContent = appData.lastUpdate;
 });
 
@@ -172,7 +186,7 @@ function renderLigue1() {
     pronosContainer.innerHTML = '';
     
     let confTotal = 0;
-    appData.ligue1.pronostics_j4.forEach(prono => {
+    appData.ligue1.pronostics_j4.forEach((prono, idx) => {
         confTotal += prono.conf;
         
         let pronoDisplay = prono.prono;
@@ -180,19 +194,38 @@ function renderLigue1() {
         if (prono.prono === 'X') pronoDisplay = '🤝 Nul';
         if (prono.prono === '2') pronoDisplay = '✈️ Extérieur';
         
+        // Déterminer la couleur de confiance
+        let confColor = '';
+        if (prono.conf >= 7) confColor = 'high-conf';
+        else if (prono.conf >= 5) confColor = 'mid-conf';
+        else confColor = 'low-conf';
+        
+        // Emoji leçon si pertinent
+        let leconEmoji = prono.justif && prono.justif.includes('LEÇON') ? '📚' : '';
+        
         pronosContainer.innerHTML += `
-            <div class="prono-card">
-                <div class="prono-match">${prono.match}</div>
-                <div class="prono-probas">
-                    <div class="proba-badge ${prono.p1 > 45 ? 'high' : ''}">1: ${prono.p1}%</div>
-                    <div class="proba-badge ${prono.pn > 40 ? 'high' : ''}">N: ${prono.pn}%</div>
-                    <div class="proba-badge ${prono.p2 > 45 ? 'high' : ''}">2: ${prono.p2}%</div>
+            <div class="prono-card ${confColor}">
+                <div class="prono-header">
+                    <div class="prono-match">${leconEmoji} ${prono.match}</div>
+                    <div class="conf-badge-inline">${prono.conf.toFixed(1)}/10</div>
                 </div>
+                
+                <div class="prono-probas">
+                    <div class="proba-badge ${prono.p1 > 45 ? 'high' : ''}" title="Domicile">1: ${prono.p1}%</div>
+                    <div class="proba-badge ${prono.pn > 40 ? 'high' : ''}" title="Nul">N: ${prono.pn}%</div>
+                    <div class="proba-badge ${prono.p2 > 45 ? 'high' : ''}" title="Extérieur">2: ${prono.p2}%</div>
+                </div>
+                
                 <div class="prono-predi">${pronoDisplay}</div>
                 <div class="prono-score">Score potentiel: <strong>${prono.score}</strong></div>
-                <div class="prono-conf">
-                    <span>Confiance</span>
-                    <span class="conf-badge">${prono.conf.toFixed(1)}/10</span>
+                
+                <div class="prono-justif">
+                    <strong>Justification:</strong>
+                    <p>${prono.justif || 'Stats pures (argmax %)'}</p>
+                </div>
+                
+                <div class="confiance-bar">
+                    <div class="confiance-fill" style="width: ${prono.conf * 10}%"></div>
                 </div>
             </div>
         `;
@@ -200,6 +233,36 @@ function renderLigue1() {
     
     document.getElementById('conf-avg-j4').textContent = (confTotal / appData.ligue1.pronostics_j4.length).toFixed(1);
     document.getElementById('exactitude-j3').textContent = '44.4';
+}
+
+// ===== RENDU LEÇONS APPRISES =====
+function renderLessonsLearned() {
+    // Cette fonction s'ajoute à renderLigue1() pour afficher leçons dans Analytics
+    const analyticsTable = document.getElementById('analytics-table');
+    
+    // Ajouter lignes leçons apprises
+    if (appData.ligue1.lecons_apprises) {
+        analyticsTable.innerHTML = '';
+        
+        // Table historique
+        const rows = [
+            { journee: "J1", exactitude: "66.7%", confiance: "4.4/10", methodo: "Basique (momentum simple)" },
+            { journee: "J2", exactitude: "11.1%", confiance: "4.4/10", methodo: "Momentum trop simple = PIRE" },
+            { journee: "J3", exactitude: "44.4%", confiance: "5.6/10", methodo: "Correction patterns (Strasbourg, PSG)" },
+            { journee: "J4", exactitude: "~50-55% (esp.)", confiance: "6.2/10", methodo: "5 indices math robustes + argmax %" }
+        ];
+        
+        rows.forEach(row => {
+            analyticsTable.innerHTML += `
+                <tr>
+                    <td><strong>${row.journee}</strong></td>
+                    <td>${row.exactitude}</td>
+                    <td>${row.confiance}</td>
+                    <td>${row.methodo}</td>
+                </tr>
+            `;
+        });
+    }
 }
 
 // ===== RENDU LDC =====

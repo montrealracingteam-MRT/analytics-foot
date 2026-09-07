@@ -28,15 +28,15 @@
       { "journee": "J3", "score": "44.4%", "conf": "5.6/10" }
     ],
     "pronostics_j4": [
-      { "match": "Rennes vs Marseille", "p1": 74, "pn": 10, "p2": 16, "prono": "1", "score": "2-1", "conf": 7.2, "justif": "74% > autres. Rennes forme (2V-1N). Marseille crise." },
-      { "match": "Strasbourg vs Monaco", "p1": 29, "pn": 28, "p2": 43, "prono": "2", "score": "1-2", "conf": 7.1, "justif": "Monaco leader (43% > 29%). Def Monaco 4.62 power." },
-      { "match": "Auxerre vs Nice", "p1": 43, "pn": 23, "p2": 34, "prono": "X", "score": "1-1", "conf": 3.8, "justif": "⚠️ LEÇON: Auxerre catastrophe (0pts, -7 diff) = nul probable vs équipe écrasée." },
-      { "match": "Paris FC vs Lyon", "p1": 53, "pn": 19, "p2": 28, "prono": "1", "score": "2-0", "conf": 7.9, "justif": "53% > autres. PFC leader. Meilleure défense (0.67 GA/J)." },
-      { "match": "Lorient vs Toulouse", "p1": 72, "pn": 11, "p2": 17, "prono": "1", "score": "2-0", "conf": 6.5, "justif": "72% > autres. Lorient 4pts vs Toulouse 1pt. Momentum clair." },
-      { "match": "Le Havre vs Angers", "p1": 42, "pn": 23, "p2": 35, "prono": "1", "score": "1-1", "conf": 4.5, "justif": "42% vs 35% = très serré. Confiance basse = pattern uncertain." },
-      { "match": "Lille vs Troyes", "p1": 74, "pn": 10, "p2": 15, "prono": "1", "score": "2-0", "conf": 7.8, "justif": "74% > autres. Lille leader. Troyes post-6-2 (crise)." },
-      { "match": "Lens vs Le Mans", "p1": 59, "pn": 16, "p2": 24, "prono": "1", "score": "2-0", "conf": 5.8, "justif": "59% > autres. Lens domicile (+3%). Power off 1.00 > 0.83." },
-      { "match": "PSG vs Brest", "p1": 37, "pn": 25, "p2": 38, "prono": "X", "score": "1-1", "conf": 5.2, "justif": "⚠️ LEÇON: 38% ≈ 37% (trop serré). PSG pattern = nuls (67%). Brest équilibré." }
+      { "match": "Rennes vs Marseille", "p1": 74, "pn": 10, "p2": 16, "prono": "1", "score": "2-1", "conf": 7.2, "justif": "Rennes 74% favori (domicile + PPM 2.33). Marseille en crise (PPM 1.00)." },
+      { "match": "Strasbourg vs Monaco", "p1": 29, "pn": 28, "p2": 43, "prono": "2", "score": "1-2", "conf": 7.1, "justif": "Monaco 43% > Strasbourg 29%. Def Monaco 4.62 (meilleure ligue). Leader confirmé." },
+      { "match": "Auxerre vs Nice", "p1": 43, "pn": 23, "p2": 34, "prono": "X", "score": "1-1", "conf": 3.8, "justif": "⚠️ Auxerre 43% mais catastrophe (0pts, -7 diff). Nul probable face équipe fragile. Conf basse." },
+      { "match": "Havre AC vs Angers", "p1": 42, "pn": 23, "p2": 35, "prono": "1", "score": "1-0", "conf": 4.5, "justif": "42% > 35%. Serré. Havre domicile (+3%) vs Angers stable. Confiance baisse = incertitude." },
+      { "match": "FC Lorient vs Toulouse", "p1": 72, "pn": 11, "p2": 17, "prono": "1", "score": "2-0", "conf": 6.5, "justif": "Lorient 72% > Toulouse. 4pts vs 1pt. PPM 1.33 vs 0.33. Domicile boost." },
+      { "match": "Paris FC vs Lyon", "p1": 53, "pn": 19, "p2": 28, "prono": "1", "score": "1-0", "conf": 6.8, "justif": "Paris FC 53% (domicile boost). PPM identique 2.33. Meilleure défense (0.67 GA/J)." },
+      { "match": "LOSC Lille vs Troyes", "p1": 74, "pn": 10, "p2": 15, "prono": "1", "score": "2-0", "conf": 7.8, "justif": "Lille 74% favori. PPM 2.33 vs 1.33. Domicile + power def 2.61. Leader confirmé." },
+      { "match": "Le Mans FC vs Lens", "p1": 47, "pn": 19, "p2": 34, "prono": "1", "score": "1-0", "conf": 5.2, "justif": "LE MANS domicile 47% vs Lens 34%. Serré mais domicile + contexte. Confiance modérée." },
+      { "match": "Brest vs PSG", "p1": 69, "pn": 12, "p2": 19, "prono": "1", "score": "2-0", "conf": 6.9, "justif": "Brest 69% (domicile + PPM 1.67 vs PSG 0.67). PSG en crise (0V-2N-1P). Brest favori." }
     ]
   },
   "ldc": {

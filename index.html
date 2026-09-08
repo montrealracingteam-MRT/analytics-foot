@@ -3,232 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Foot - Ligue 1 & Champions League</title>
+    <title>Analytics Foot Pro | Pronostics Ligue 1 & Champions League</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎯 Analytics Foot</h1>
-            <p>Pronostics Ligue 1 & Champions League 2026-2027</p>
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('ligue1')">🇫🇷 Ligue 1</button>
-                <button class="tab-btn" onclick="switchTab('ldc')">🏆 Champions League</button>
-                <button class="tab-btn" onclick="switchTab('analytics')">📊 Analytics</button>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">⚽</span>
+                <span class="logo-text">Analytics<br>Foot Pro</span>
+            </div>
+            <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="switchView('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('ligue1')">
+                <span class="nav-icon">🇫🇷</span>
+                <span>Ligue 1</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('ldc')">
+                <span class="nav-icon">🏆</span>
+                <span>Champions League</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('historique')">
+                <span class="nav-icon">📚</span>
+                <span>Historique</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('equipes')">
+                <span class="nav-icon">🔍</span>
+                <span>Équipes</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('analytics')">
+                <span class="nav-icon">📈</span>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('lessons')">
+                <span class="nav-icon">🧠</span>
+                <span>Apprentissage</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchView('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span>Paramètres</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">M</div>
+                <div>
+                    <div class="user-name">MRT #514</div>
+                    <div class="user-status">v2.0 Pro</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="page-title" id="page-title">Dashboard</div>
+            <div class="top-actions">
+                <span class="last-update">📅 <span id="last-update-date">08/09/2026</span></span>
             </div>
         </header>
 
-        <!-- TAB 1: LIGUE 1 -->
-        <section id="ligue1-tab" class="tab-content active">
-            
-            <!-- SECTION 1: BASE MATH -->
-            <div class="section">
-                <h2>📐 Base Mathématique (Mise à jour J3)</h2>
-                <div class="subsection">
-                    <h3>PPM - Points Par Match (Forme réelle)</h3>
-                    <table class="math-table">
+        <!-- VIEW: DASHBOARD -->
+        <section id="dashboard-view" class="view active">
+            <div class="page-header">
+                <h1>📊 Vue d'ensemble</h1>
+                <p>Tableau de bord général - Ligue 1 & Champions League</p>
+            </div>
+
+            <!-- METRICS GRID -->
+            <div class="metrics-grid">
+                <div class="metric-card gradient-blue">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-value" id="metric-exactitude-global">44.4%</div>
+                    <div class="metric-label">Exactitude Globale</div>
+                    <div class="metric-trend">📈 En amélioration</div>
+                </div>
+                
+                <div class="metric-card gradient-green">
+                    <div class="metric-icon">🏆</div>
+                    <div class="metric-value" id="metric-best-j">J3</div>
+                    <div class="metric-label">Meilleure Journée</div>
+                    <div class="metric-trend" id="metric-best-score">44.4%</div>
+                </div>
+                
+                <div class="metric-card gradient-orange">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-value" id="metric-total-pronos">27</div>
+                    <div class="metric-label">Pronostics Total</div>
+                    <div class="metric-trend">Sur 3 journées</div>
+                </div>
+                
+                <div class="metric-card gradient-purple">
+                    <div class="metric-icon">⚽</div>
+                    <div class="metric-value" id="metric-confiance">6.2</div>
+                    <div class="metric-label">Confiance Moyenne</div>
+                    <div class="metric-trend">/10 (Robuste)</div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>📈 Évolution Exactitude</h3>
+                    <canvas id="chart-exactitude"></canvas>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>🎯 Distribution Pronostics J4</h3>
+                    <canvas id="chart-distribution"></canvas>
+                </div>
+            </div>
+
+            <!-- QUICK ACCESS -->
+            <div class="quick-access">
+                <h2>🔥 Accès Rapide</h2>
+                <div class="quick-cards">
+                    <div class="quick-card" onclick="switchView('ligue1')">
+                        <span class="quick-icon">🇫🇷</span>
+                        <div>
+                            <h4>Ligue 1 - J4</h4>
+                            <p>9 matchs pronostiqués</p>
+                            <span class="quick-badge">Confiance 6.2/10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-card" onclick="switchView('ldc')">
+                        <span class="quick-icon">🏆</span>
+                        <div>
+                            <h4>Champions League - J1</h4>
+                            <p>18 matchs pronostiqués</p>
+                            <span class="quick-badge">Confiance 6.7/10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-card" onclick="switchView('lessons')">
+                        <span class="quick-icon">🧠</span>
+                        <div>
+                            <h4>Apprentissage</h4>
+                            <p>4 leçons apprises</p>
+                            <span class="quick-badge">J1 → J4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: LIGUE 1 -->
+        <section id="ligue1-view" class="view">
+            <div class="page-header">
+                <h1>🇫🇷 Ligue 1 - Saison 2026-2027</h1>
+                <p>Pronostics, classement et statistiques</p>
+            </div>
+
+            <!-- SÉLECTEUR JOURNÉE -->
+            <div class="journee-selector">
+                <button class="btn-nav" onclick="changerJournee(-1, 'ligue1')">← Précédente</button>
+                <select id="l1-journee-select" onchange="afficherJournee(this.value, 'ligue1')">
+                    <option value="1">Journée 1</option>
+                    <option value="2">Journée 2</option>
+                    <option value="3">Journée 3</option>
+                    <option value="4" selected>Journée 4 (Actuelle)</option>
+                </select>
+                <button class="btn-nav" onclick="changerJournee(1, 'ligue1')">Suivante →</button>
+            </div>
+
+            <!-- STATS RAPIDES DE LA JOURNÉE -->
+            <div class="journee-stats" id="l1-journee-stats"></div>
+
+            <!-- PRONOSTICS -->
+            <div class="section-block">
+                <h2>🎯 Pronostics</h2>
+                <div class="pronostics-grid" id="l1-pronostics-grid"></div>
+            </div>
+
+            <!-- CLASSEMENT -->
+            <div class="section-block">
+                <h2>🏆 Classement</h2>
+                <div class="table-wrapper">
+                    <table class="classement-modern">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Équipe</th>
+                                <th>Pts</th>
+                                <th>J</th>
+                                <th>G</th>
+                                <th>N</th>
+                                <th>P</th>
+                                <th>Diff</th>
+                                <th>Forme</th>
+                            </tr>
+                        </thead>
+                        <tbody id="l1-classement"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BASE MATH -->
+            <div class="section-block">
+                <h2>📐 Base Mathématique</h2>
+                <div class="table-wrapper">
+                    <table class="math-modern">
                         <thead>
                             <tr>
                                 <th>Équipe</th>
                                 <th>PPM</th>
-                                <th>Pts</th>
-                                <th>J</th>
-                                <th>Trend</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ppm-table">
-                            <!-- Rempli par app.js -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="subsection">
-                    <h3>Power Rating (Attaque/Défense)</h3>
-                    <table class="math-table">
-                        <thead>
-                            <tr>
-                                <th>Équipe</th>
-                                <th>GF/J</th>
-                                <th>GA/J</th>
                                 <th>Off Power</th>
                                 <th>Def Power</th>
+                                <th>Confiance</th>
+                                <th>Statut</th>
                             </tr>
                         </thead>
-                        <tbody id="power-table">
-                            <!-- Rempli par app.js -->
-                        </tbody>
+                        <tbody id="l1-math"></tbody>
                     </table>
                 </div>
+            </div>
+        </section>
 
-                <div class="subsection">
-                    <h3>Confiance Multi-facteurs (0-10)</h3>
-                    <table class="math-table">
+        <!-- VIEW: CHAMPIONS LEAGUE -->
+        <section id="ldc-view" class="view">
+            <div class="page-header">
+                <h1>🏆 Champions League - 2026-2027</h1>
+                <p>Pronostics et analyses phase de ligue</p>
+            </div>
+
+            <div class="journee-selector">
+                <select id="ldc-journee-select" onchange="afficherJournee(this.value, 'ldc')">
+                    <option value="1" selected>Journée 1 - 8-10 Sept</option>
+                    <option value="2" disabled>Journée 2 (À venir)</option>
+                </select>
+            </div>
+
+            <div class="journee-stats" id="ldc-journee-stats"></div>
+
+            <div class="section-block">
+                <h2>🎯 Pronostics par jour</h2>
+                <div class="pronostics-grid" id="ldc-pronostics-grid"></div>
+            </div>
+
+            <div class="section-block">
+                <h2>📊 Confiance des Équipes</h2>
+                <div class="table-wrapper">
+                    <table class="math-modern">
                         <thead>
                             <tr>
                                 <th>Équipe</th>
+                                <th>Championnat</th>
+                                <th>PPM</th>
                                 <th>Confiance</th>
-                                <th>Notation</th>
+                                <th>Statut</th>
                             </tr>
                         </thead>
-                        <tbody id="confidence-table">
-                            <!-- Rempli par app.js -->
-                        </tbody>
+                        <tbody id="ldc-teams-table"></tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- SECTION 2: CLASSEMENT -->
-            <div class="section">
-                <h2>🏆 Classement Ligue 1 (J3)</h2>
-                <table class="classement-table">
-                    <thead>
-                        <tr>
-                            <th>Pl.</th>
-                            <th>Équipe</th>
-                            <th>Pts</th>
-                            <th>J</th>
-                            <th>G</th>
-                            <th>N</th>
-                            <th>P</th>
-                            <th>Diff</th>
-                        </tr>
-                    </thead>
-                    <tbody id="classement-table">
-                        <!-- Rempli par app.js -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- SECTION 3: PRONOSTICS J4 -->
-            <div class="section">
-                <h2>🎯 Pronostics J4 (11-13 SEPT)</h2>
-                <div class="pronostics-container" id="pronostics-j4">
-                    <!-- Rempli par app.js -->
-                </div>
-                <div class="stats-footer">
-                    <span>Confiance moyenne: <strong id="conf-avg-j4">5.1</strong>/10</span>
-                    <span>Exactitude J3: <strong id="exactitude-j3">44.4</strong>%</span>
-                </div>
-            </div>
-
         </section>
 
-        <!-- TAB 2: CHAMPIONS LEAGUE -->
-        <section id="ldc-tab" class="tab-content">
-            <div class="section">
-                <h2>🏆 Champions League 2026-2027</h2>
-                <div class="info-box">
-                    <p>Section en construction - À développer avec données LDC réelles</p>
+        <!-- VIEW: HISTORIQUE -->
+        <section id="historique-view" class="view">
+            <div class="page-header">
+                <h1>📚 Historique Complet</h1>
+                <p>Tous les pronostics et résultats par journée</p>
+            </div>
+
+            <div class="tabs-secondary">
+                <button class="tab-sec active" onclick="switchHistoTab('ligue1')">🇫🇷 Ligue 1</button>
+                <button class="tab-sec" onclick="switchHistoTab('ldc')">🏆 Champions League</button>
+            </div>
+
+            <div id="histo-content"></div>
+        </section>
+
+        <!-- VIEW: RECHERCHE ÉQUIPES -->
+        <section id="equipes-view" class="view">
+            <div class="page-header">
+                <h1>🔍 Recherche par Équipe</h1>
+                <p>Analyse détaillée de chaque équipe</p>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="team-search" placeholder="🔍 Chercher une équipe (ex: Monaco, PSG, Real Madrid...)" oninput="rechercherEquipe(this.value)">
+            </div>
+
+            <div id="team-results"></div>
+        </section>
+
+        <!-- VIEW: ANALYTICS -->
+        <section id="analytics-view" class="view">
+            <div class="page-header">
+                <h1>📈 Analytics Avancés</h1>
+                <p>Statistiques et progression</p>
+            </div>
+
+            <div class="charts-full">
+                <div class="chart-card-large">
+                    <h3>📊 Exactitude par Journée</h3>
+                    <canvas id="chart-exactitude-full"></canvas>
                 </div>
 
-                <div class="subsection">
-                    <h3>Groupes Phase de Poule</h3>
-                    <div id="ldc-groups">
-                        <!-- Rempli par app.js -->
-                    </div>
+                <div class="chart-card-large">
+                    <h3>⚽ Distribution des Résultats</h3>
+                    <canvas id="chart-results"></canvas>
                 </div>
 
-                <div class="subsection">
-                    <h3>Pronostics Matchjour Actuelle</h3>
-                    <div id="ldc-pronostics" class="pronostics-container">
-                        <!-- Rempli par app.js -->
-                    </div>
+                <div class="chart-card-large">
+                    <h3>🎯 Confiance vs Exactitude</h3>
+                    <canvas id="chart-conf-exact"></canvas>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 3: ANALYTICS -->
-        <section id="analytics-tab" class="tab-content">
-            <div class="section">
-                <h2>📊 Progression Exactitude</h2>
-                <table class="analytics-table">
-                    <thead>
-                        <tr>
-                            <th>Journée</th>
-                            <th>Exactitude</th>
-                            <th>Confiance</th>
-                            <th>Méthodologie</th>
-                        </tr>
-                    </thead>
-                    <tbody id="analytics-table">
-                        <tr>
-                            <td>J1</td>
-                            <td>66.7%</td>
-                            <td>4.4/10</td>
-                            <td>Basique (momentum simple)</td>
-                        </tr>
-                        <tr>
-                            <td>J2</td>
-                            <td>11.1%</td>
-                            <td>4.4/10</td>
-                            <td>Momentum simple (erreurs patterns)</td>
-                        </tr>
-                        <tr>
-                            <td>J3</td>
-                            <td>44.4% ✅</td>
-                            <td>5.6/10</td>
-                            <td>Momentum + patterns corrigés</td>
-                        </tr>
-                        <tr>
-                            <td>J4</td>
-                            <td>~50-55% (attendu)</td>
-                            <td>5.1/10</td>
-                            <td>5 indices math robustes</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- VIEW: LESSONS (Apprentissage) -->
+        <section id="lessons-view" class="view">
+            <div class="page-header">
+                <h1>🧠 Apprentissage Continu</h1>
+                <p>Documentation des leçons apprises + évolution méthodologie</p>
+            </div>
 
-                <div class="subsection">
-                    <h3>Key Insights</h3>
-                    <ul class="insights-list">
-                        <li><strong>Monaco:</strong> 3V-0N-0P, 9pts, PPM 3.0 = Dominant</li>
-                        <li><strong>Paris FC:</strong> 2V-1N-0P, 7pts, meilleure défense (0.67 GA/J)</li>
-                        <li><strong>Strasbourg:</strong> 6 buts J3, meilleure attaque (2.67 GF/J)</li>
-                        <li><strong>PSG:</strong> 0V-2N-1P, 2pts, en crise (0.67 PPM)</li>
-                        <li><strong>Buteurs:</strong> Doumbia, Gouiri (4 buts chacun)</li>
-                    </ul>
-                </div>
+            <div class="lessons-timeline" id="lessons-timeline"></div>
 
-                <div class="subsection">
-                    <h3>📚 Leçons Apprises (J1→J4)</h3>
-                    <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                        <p style="color: #1e40af; margin: 0 0 10px 0;"><strong>Évolution méthodologie:</strong></p>
-                        <ul style="color: #1e40af; margin: 0; padding-left: 20px;">
-                            <li><strong>J1-J2:</strong> Momentum trop simpliste → Exactitude J2 = 11.1% (pire)</li>
-                            <li><strong>J3:</strong> Correction patterns (Strasbourg 8 buts, PSG crise) → 44.4% (meilleure)</li>
-                            <li><strong>J4:</strong> Erreur logique trouvée: Strasbourg X malgré Monaco 43% > 29% ❌</li>
-                            <li><strong>CORRECTION J4:</strong> argmax(%) strict + max 7% surprise justifiée</li>
-                            <li><strong>PATTERNS:</strong> Nuls réels 22% vs prédit 38% (sur-estimation nuls)</li>
-                            <li><strong>AUXERRE/PSG:</strong> Teams en crise = nuls plus probables que victoires</li>
-                        </ul>
+            <div class="section-block">
+                <h2>🎯 Objectifs & KPIs</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <h4>Court Terme</h4>
+                        <p><strong>Viser 50%+ exactitude</strong></p>
+                        <p>Fin septembre 2026</p>
                     </div>
+                    <div class="kpi-card">
+                        <h4>Moyen Terme</h4>
+                        <p><strong>Atteindre 55% exactitude</strong></p>
+                        <p>Fin décembre 2026</p>
+                    </div>
+                    <div class="kpi-card">
+                        <h4>Long Terme</h4>
+                        <p><strong>60%+ = Niveau Pro</strong></p>
+                        <p>Fin saison mai 2027</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-block">
+                <h2>📝 Ajouter une Nouvelle Leçon</h2>
+                <div class="lesson-form">
+                    <input type="text" id="lesson-title" placeholder="Titre de la leçon...">
+                    <textarea id="lesson-content" placeholder="Description de la leçon apprise..." rows="3"></textarea>
+                    <button onclick="ajouterLecon()" class="btn-primary">💾 Sauvegarder Leçon</button>
                 </div>
             </div>
         </section>
 
-        <!-- FOOTER -->
-        <footer>
-            <div class="update-section">
-                <h3>Mettre à jour les données</h3>
-                <button onclick="openUpdateModal()">📥 Importer JSON</button>
-                <button onclick="downloadData()">📤 Exporter données</button>
-                <button onclick="resetData()">🔄 Réinitialiser</button>
+        <!-- VIEW: SETTINGS -->
+        <section id="settings-view" class="view">
+            <div class="page-header">
+                <h1>⚙️ Paramètres</h1>
+                <p>Gestion des données et configuration</p>
             </div>
-            <p>Dernière mise à jour: <span id="last-update">31/08/2026</span></p>
-            <p class="credit">Analytics Foot v1.0 - Système automatisé Ligue 1 & LDC</p>
-        </footer>
-    </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>📥 Importer JSON</h3>
+                    <p>Coller les nouvelles données de pronostics</p>
+                    <button onclick="openImportModal()" class="btn-primary">Importer</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3>📤 Exporter Données</h3>
+                    <p>Télécharger backup complet</p>
+                    <button onclick="exporterDonnees()" class="btn-primary">Exporter</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3>➕ Ajouter Résultats Réels</h3>
+                    <p>Saisir les résultats d'une journée</p>
+                    <button onclick="openResultsModal()" class="btn-primary">Saisir Résultats</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3>🔄 Réinitialiser</h3>
+                    <p>Supprimer toutes les données (⚠️)</p>
+                    <button onclick="reinitialiser()" class="btn-danger">Réinitialiser</button>
+                </div>
+            </div>
+
+            <div class="section-block">
+                <h2>📊 Statistiques Système</h2>
+                <div class="metrics-grid-small">
+                    <div class="stat-mini">
+                        <span>Journées L1</span>
+                        <strong id="stat-j-l1">4</strong>
+                    </div>
+                    <div class="stat-mini">
+                        <span>Journées LDC</span>
+                        <strong id="stat-j-ldc">1</strong>
+                    </div>
+                    <div class="stat-mini">
+                        <span>Total pronos</span>
+                        <strong id="stat-total">45</strong>
+                    </div>
+                    <div class="stat-mini">
+                        <span>Version</span>
+                        <strong>v2.0</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- MODAL IMPORT -->
-    <div id="updateModal" class="modal">
+    <div id="importModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeUpdateModal()">&times;</span>
-            <h2>Importer données JSON</h2>
-            <textarea id="jsonInput" placeholder="Coller le contenu du JSON ici..."></textarea>
-            <button onclick="importJSON()">Importer</button>
+            <span class="modal-close" onclick="closeImportModal()">✕</span>
+            <h2>📥 Importer données JSON</h2>
+            <p>Colle le JSON fourni par Claude pour mettre à jour le site</p>
+            <textarea id="jsonInput" placeholder='{ "journee": 5, "lastUpdate": "...", ... }' rows="15"></textarea>
+            <button onclick="importJSON()" class="btn-primary">✅ Importer</button>
         </div>
     </div>
 
+    <!-- MODAL RÉSULTATS -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeResultsModal()">✕</span>
+            <h2>➕ Saisir Résultats Réels</h2>
+            <p>Après chaque journée jouée, saisis les vrais résultats pour tracker l'exactitude</p>
+            <div id="results-form"></div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

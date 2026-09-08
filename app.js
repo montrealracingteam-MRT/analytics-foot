@@ -1,526 +1,907 @@
-// ===== DONNÉES PAR DÉFAUT =====
-const defaultData = {
-    journee: 4,
-    lastUpdate: "31/08/2026",
-    ligue1: {
-        teams: {
-            "Monaco": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 5, ga: 1, off_power: 0.83, def_power: 4.62, conf: 8.5 },
-            "Paris FC": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 6, ga: 2, off_power: 1.00, def_power: 2.61, conf: 8.0 },
-            "Lyon": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 6, ga: 2, off_power: 1.00, def_power: 2.61, conf: 7.9 },
-            "Lille": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 5, ga: 2, off_power: 0.83, def_power: 2.61, conf: 7.5 },
-            "Rennes": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 7, ga: 5, off_power: 1.17, def_power: 1.13, conf: 6.8 },
-            "Strasbourg": { ppm: 2.00, pts: 6, j: 3, g: 2, n: 0, p: 1, gf: 8, ga: 7, off_power: 1.33, def_power: 0.82, conf: 6.1 },
-            "Brest": { ppm: 1.67, pts: 5, j: 3, g: 1, n: 2, p: 0, gf: 6, ga: 5, off_power: 1.00, def_power: 1.13, conf: 5.7 },
-            "Lorient": { ppm: 1.33, pts: 4, j: 3, g: 1, n: 1, p: 1, gf: 2, ga: 2, off_power: 0.33, def_power: 2.61, conf: 5.5 },
-            "Troyes": { ppm: 1.33, pts: 4, j: 3, g: 1, n: 1, p: 1, gf: 4, ga: 7, off_power: 0.67, def_power: 0.82, conf: 4.3 },
-            "Marseille": { ppm: 1.00, pts: 3, j: 3, g: 1, n: 0, p: 2, gf: 6, ga: 5, off_power: 1.00, def_power: 1.13, conf: 4.7 },
-            "Lens": { ppm: 1.00, pts: 3, j: 3, g: 1, n: 0, p: 2, gf: 6, ga: 5, off_power: 1.00, def_power: 1.13, conf: 4.6 },
-            "Angers": { ppm: 1.00, pts: 3, j: 3, g: 1, n: 0, p: 2, gf: 4, ga: 5, off_power: 0.67, def_power: 1.13, conf: 4.0 },
-            "PSG": { ppm: 0.67, pts: 2, j: 3, g: 0, n: 2, p: 1, gf: 5, ga: 6, off_power: 0.83, def_power: 0.95, conf: 3.6 },
-            "Le Mans": { ppm: 0.67, pts: 2, j: 3, g: 0, n: 2, p: 1, gf: 5, ga: 6, off_power: 0.83, def_power: 0.95, conf: 3.4 },
-            "Nice": { ppm: 0.67, pts: 2, j: 3, g: 0, n: 2, p: 1, gf: 1, ga: 4, off_power: 0.17, def_power: 1.40, conf: 3.1 },
-            "Le Havre": { ppm: 0.33, pts: 1, j: 3, g: 0, n: 1, p: 2, gf: 2, ga: 4, off_power: 0.33, def_power: 1.40, conf: 2.8 },
-            "Toulouse": { ppm: 0.33, pts: 1, j: 3, g: 0, n: 1, p: 2, gf: 2, ga: 5, off_power: 0.33, def_power: 1.13, conf: 2.4 },
-            "Auxerre": { ppm: 0.00, pts: 0, j: 3, g: 0, n: 0, p: 3, gf: 4, ga: 11, off_power: 0.67, def_power: 0.53, conf: 1.6 }
-        },
-        exactitude: [
-            { journee: "J1", score: "66.7%", conf: "4.4/10", apprentissage: "Basique, données partielles (3/9)" },
-            { journee: "J2", score: "11.1%", conf: "4.4/10", apprentissage: "Momentum trop simple = pire exactitude" },
-            { journee: "J3", score: "44.4%", conf: "5.6/10", apprentissage: "Correction patterns (Strasbourg, PSG) = amélioration" },
-            { journee: "J4", score: "~50-55% (esp.)", conf: "6.2/10", apprentissage: "argmax(%) strict + max 7% surprise justifiée" }
-        ],
-        lecons_apprises_full: [
-            { journee: "J1", erreur: "Données partielles (3 matchs seulement)", apprentissage: "66.7% = lucky, pas vraie méthodologie" },
-            { journee: "J2", erreur: "Momentum trop simpliste. Sur-estimation nuls (38% vs 22% réel)", apprentissage: "11.1% = PIRE exactitude. Besoin refonte." },
-            { journee: "J3", erreur: "Strasbourg 2-6 goleada (incompréhensible). PSG toujours mal (0V-2N-1P)", apprentissage: "44.4% = correction J2. 5 indices math créés. Strasbourg 8 buts = meilleure attaque." },
-            { journee: "J4", erreur: "Strasbourg X malgré Monaco 43% > 29%. Illogique statistiquement!", apprentissage: "CORRECTION: argmax(%) strict. Auxerre/PSG = patterns = baisse confiance. Max 7% surprise." }
-        ],
-        pronostics_j4: [
-            { match: "Rennes vs Marseille", p1: 74, pn: 10, p2: 16, prono: "1", score: "2-1", conf: 7.2, justif: "Rennes 74% favori (domicile + PPM 2.33). Marseille en crise (PPM 1.00)." },
-            { match: "Strasbourg vs Monaco", p1: 29, pn: 28, p2: 43, prono: "2", score: "1-2", conf: 7.1, justif: "Monaco 43% > Strasbourg 29%. Def Monaco 4.62 (meilleure ligue). Leader confirmé." },
-            { match: "Auxerre vs Nice", p1: 43, pn: 23, p2: 34, prono: "X", score: "1-1", conf: 3.8, justif: "⚠️ Auxerre 43% mais catastrophe (0pts, -7 diff). Nul probable face équipe fragile. Conf basse." },
-            { match: "Havre AC vs Angers", p1: 42, pn: 23, p2: 35, prono: "1", score: "1-0", conf: 4.5, justif: "42% > 35%. Serré. Havre domicile (+3%) vs Angers stable. Confiance baisse = incertitude." },
-            { match: "FC Lorient vs Toulouse", p1: 72, pn: 11, p2: 17, prono: "1", score: "2-0", conf: 6.5, justif: "Lorient 72% > Toulouse. 4pts vs 1pt. PPM 1.33 vs 0.33. Domicile boost." },
-            { match: "Paris FC vs Lyon", p1: 53, pn: 19, p2: 28, prono: "1", score: "1-0", conf: 6.8, justif: "Paris FC 53% (domicile boost). PPM identique 2.33. Meilleure défense (0.67 GA/J)." },
-            { match: "LOSC Lille vs Troyes", p1: 74, pn: 10, p2: 15, prono: "1", score: "2-0", conf: 7.8, justif: "Lille 74% favori. PPM 2.33 vs 1.33. Domicile + power def 2.61. Leader confirmé." },
-            { match: "Le Mans FC vs Lens", p1: 47, pn: 19, p2: 34, prono: "1", score: "1-0", conf: 5.2, justif: "LE MANS domicile 47% vs Lens 34%. Serré mais domicile + contexte. Confiance modérée." },
-            { match: "Brest vs PSG", p1: 69, pn: 12, p2: 19, prono: "1", score: "2-0", conf: 6.9, justif: "Brest 69% (domicile + PPM 1.67 vs PSG 0.67). PSG en crise (0V-2N-1P). Brest favori." }
-        ],
-        lecons_apprises: [
-            { journee: "J1", erreur: "Basique, données partielles (3/9 visibles)", apprentissage: "Exactitude 66.7% = lucky, pas méthodologie" },
-            { journee: "J2", erreur: "Momentum trop simpliste. Sous-estimé nuls.", apprentissage: "11.1% = pire score. Nuls réels 22% vs prédit 38%." },
-            { journee: "J3", erreur: "Strasbourg 2-6 = goleada incompréhensible. PSG toujours mal évalué (0V-2N-1P)", apprentissage: "44.4% = correction de J2. Strasbourg meilleure attaque (8 buts). PSG crise profonde." },
-            { journee: "J4", erreur: "Strasbourg vs Monaco = prono X alors que Monaco 43% > 29% (ILLOGIQUE!)", apprentissage: "CORRECTION: argmax(%) + max 7% surprise justifiée. Auxerre/PSG = patterns clairs = baisse confiance." }
-        ]
-    },
-    ldc: {
-        teams: {
-            // === Matchs Mercredi 9 Septembre (CE SOIR) ===
-            "Barcelona": { ppm: 3.00, pts: 12, j: 4, g: 4, n: 0, p: 0, gf: 17, ga: 2, off_power: 2.13, def_power: 4.00, conf: 9.2, country: "🇪🇸 La Liga" },
-            "Feyenoord": { ppm: 2.20, pts: 11, j: 5, g: 3, n: 2, p: 0, gf: 13, ga: 7, off_power: 1.30, def_power: 1.43, conf: 6.5, country: "🇳🇱 Eredivisie" },
-            "Stuttgart": { ppm: 1.50, pts: 3, j: 2, g: 1, n: 0, p: 1, gf: 5, ga: 6, off_power: 1.25, def_power: 0.67, conf: 4.8, country: "🇩🇪 Bundesliga" },
-            "Viking": { ppm: 2.32, pts: 44, j: 19, g: 14, n: 2, p: 3, gf: 43, ga: 19, off_power: 1.13, def_power: 2.00, conf: 6.8, country: "🇳🇴 Eliteserien" },
-            "Liverpool": { ppm: 1.67, pts: 5, j: 3, g: 1, n: 2, p: 0, gf: 6, ga: 4, off_power: 1.00, def_power: 1.50, conf: 6.0, country: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League" },
-            "Atletico Madrid": { ppm: 1.75, pts: 7, j: 4, g: 2, n: 1, p: 1, gf: 7, ga: 6, off_power: 0.88, def_power: 1.33, conf: 5.5, country: "🇪🇸 La Liga" },
-            "PSG": { ppm: 0.67, pts: 2, j: 3, g: 0, n: 2, p: 1, gf: 5, ga: 6, off_power: 0.83, def_power: 1.00, conf: 3.5, country: "🇫🇷 Ligue 1 (CRISE)" },
-            "Slovan Bratislava": { ppm: 1.50, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 0.75, def_power: 0.90, conf: 3.0, country: "🇸🇰 Fortuna Liga" },
-            "Sporting CP": { ppm: 2.20, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 1.60, def_power: 2.00, conf: 7.5, country: "🇵🇹 Primeira Liga" },
-            "Galatasaray": { ppm: 2.50, pts: 10, j: 4, g: 3, n: 1, p: 0, gf: 12, ga: 6, off_power: 1.50, def_power: 1.33, conf: 7.2, country: "🇹🇷 Süper Lig (Leader)" },
-            "Napoli": { ppm: 1.00, pts: 3, j: 3, g: 1, n: 0, p: 2, gf: 5, ga: 5, off_power: 0.83, def_power: 1.20, conf: 4.5, country: "🇮🇹 Serie A (Crise)" },
-            "Arsenal": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 6, ga: 1, off_power: 1.00, def_power: 6.00, conf: 8.7, country: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (Dominant)" },
-            // === Mardi 8 Septembre (Déjà joué ou en cours) ===
-            "Club Brugge": { ppm: 2.00, pts: 6, j: 3, g: 2, n: 0, p: 1, gf: 5, ga: 2, off_power: 0.83, def_power: 3.00, conf: 6.5, country: "🇧🇪 Pro League" },
-            "Aston Villa": { ppm: 0.33, pts: 1, j: 3, g: 0, n: 1, p: 2, gf: 0, ga: 5, off_power: 0.00, def_power: 1.20, conf: 2.8, country: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (Crise)" },
-            "Real Madrid": { ppm: 2.25, pts: 9, j: 4, g: 3, n: 0, p: 1, gf: 10, ga: 3, off_power: 1.25, def_power: 2.67, conf: 8.0, country: "🇪🇸 La Liga" },
-            "Inter": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 8, ga: 3, off_power: 1.33, def_power: 2.00, conf: 8.5, country: "🇮🇹 Serie A" },
-            "Porto": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 8, ga: 2, off_power: 1.33, def_power: 3.00, conf: 8.0, country: "🇵🇹 Primeira Liga" },
-            "Manchester City": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 7, ga: 2, off_power: 1.17, def_power: 3.00, conf: 8.8, country: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League" },
-            "Lille": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 5, ga: 2, off_power: 0.83, def_power: 3.00, conf: 7.5, country: "🇫🇷 Ligue 1" },
-            "Real Betis": { ppm: 2.25, pts: 9, j: 4, g: 3, n: 0, p: 1, gf: 5, ga: 5, off_power: 0.63, def_power: 1.60, conf: 6.5, country: "🇪🇸 La Liga" },
-            "Borussia Dortmund": { ppm: 3.00, pts: 6, j: 2, g: 2, n: 0, p: 0, gf: 5, ga: 2, off_power: 1.25, def_power: 2.00, conf: 8.0, country: "🇩🇪 Bundesliga" },
-            "Villarreal": { ppm: 0.50, pts: 2, j: 4, g: 0, n: 2, p: 2, gf: 6, ga: 8, off_power: 0.75, def_power: 1.00, conf: 3.2, country: "🇪🇸 La Liga (Crise)" },
-            // === Jeudi 10 Septembre ===
-            "Fenerbahce": { ppm: 1.50, pts: 6, j: 4, g: 2, n: 0, p: 2, gf: 8, ga: 6, off_power: 1.00, def_power: 1.33, conf: 5.0, country: "🇹🇷 Süper Lig" },
-            "Roma": { ppm: 3.00, pts: 9, j: 3, g: 3, n: 0, p: 0, gf: 10, ga: 1, off_power: 1.67, def_power: 6.00, conf: 8.8, country: "🇮🇹 Serie A (Leader)" },
-            "PSV Eindhoven": { ppm: 2.60, pts: 13, j: 5, g: 4, n: 1, p: 0, gf: 18, ga: 6, off_power: 1.80, def_power: 1.67, conf: 8.0, country: "🇳🇱 Eredivisie" },
-            "Shakhtar Donetsk": { ppm: 1.80, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 1.00, def_power: 1.20, conf: 5.5, country: "🇺🇦 Prem. League" },
-            "Como": { ppm: 2.33, pts: 7, j: 3, g: 2, n: 1, p: 0, gf: 7, ga: 3, off_power: 1.17, def_power: 2.00, conf: 6.5, country: "🇮🇹 Serie A" },
-            "RB Leipzig": { ppm: 1.50, pts: 3, j: 2, g: 1, n: 0, p: 1, gf: 4, ga: 3, off_power: 1.00, def_power: 1.33, conf: 5.5, country: "🇩🇪 Bundesliga" },
-            "Bayern Munich": { ppm: 2.00, pts: 4, j: 2, g: 1, n: 1, p: 0, gf: 5, ga: 1, off_power: 1.25, def_power: 4.00, conf: 8.0, country: "🇩🇪 Bundesliga" },
-            "Bodo Glimt": { ppm: 2.47, pts: 47, j: 19, g: 15, n: 2, p: 2, gf: 49, ga: 15, off_power: 1.29, def_power: 2.53, conf: 7.5, country: "🇳🇴 Eliteserien (Leader, 18 unbeaten!)" },
-            "Manchester United": { ppm: 1.33, pts: 4, j: 3, g: 1, n: 1, p: 1, gf: 7, ga: 6, off_power: 1.17, def_power: 1.00, conf: 5.0, country: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League" },
-            "Sabah": { ppm: 1.50, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 0.60, def_power: 0.80, conf: 2.5, country: "🇦🇿 Prem. League" },
-            "Slavia Praha": { ppm: 2.33, pts: 14, j: 6, g: 4, n: 2, p: 0, gf: 17, ga: 5, off_power: 1.42, def_power: 2.40, conf: 7.5, country: "🇨🇿 Chance Liga (Leader)" },
-            "Lens": { ppm: 1.00, pts: 3, j: 3, g: 1, n: 0, p: 2, gf: 6, ga: 5, off_power: 1.00, def_power: 1.20, conf: 4.5, country: "🇫🇷 Ligue 1" },
-            "AEK Athens": { ppm: 2.00, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 1.20, def_power: 1.50, conf: 5.5, country: "🇬🇷 Super League" },
-            "LASK": { ppm: 1.80, pts: 0, j: 0, g: 0, n: 0, p: 0, gf: 0, ga: 0, off_power: 1.10, def_power: 1.20, conf: 4.5, country: "🇦🇹 Bundesliga" }
-        },
-        pronostics_j1: [
-            // MARDI 8 SEPT
-            { date: "Mardi 8/9", match: "Club Brugge vs Aston Villa", p1: 55, pn: 25, p2: 20, prono: "1", score: "2-1", conf: 6.5, justif: "Club Brugge domicile solide (PPM 2.0). Aston Villa en CRISE (0V-1N-2P, 0 buts marqués!)" },
-            { date: "Mardi 8/9", match: "Real Madrid vs Inter", p1: 38, pn: 27, p2: 35, prono: "1", score: "2-1", conf: 5.5, justif: "Real Madrid domicile + Mourinho retour. Inter PPM 3.0 = très serré. Match sommet." },
-            { date: "Mardi 8/9", match: "Porto vs Manchester City", p1: 30, pn: 26, p2: 44, prono: "2", score: "1-2", conf: 7.0, justif: "Man City 44% > Porto 30%. Haaland-power. Man City leader PL. Porto solide mais City supérieur." },
-            { date: "Mardi 8/9", match: "Lille vs Real Betis", p1: 45, pn: 27, p2: 28, prono: "1", score: "1-0", conf: 5.8, justif: "Lille domicile + Défense excellente (0.67 GA/J). Betis moyen. Match serré mais Lille légèrement favori." },
-            { date: "Mardi 8/9", match: "Borussia Dortmund vs Villarreal", p1: 68, pn: 18, p2: 14, prono: "1", score: "2-0", conf: 8.2, justif: "Dortmund PPM 3.0 vs Villarreal en CRISE (PPM 0.5, 0V-2N-2P). Domicile + power off 1.25." },
+// ==================== APP.JS v2.0 - LOGIQUE PRINCIPALE ====================
 
-            // MERCREDI 9 SEPT (CE SOIR!)
-            { date: "Mercredi 9/9 🔥", match: "Barcelona vs Feyenoord", p1: 78, pn: 12, p2: 10, prono: "1", score: "3-1", conf: 8.5, justif: "⭐ Barcelona LEADER La Liga (4V-0N-0P, GF 17!, +15 diff). Feyenoord solide mais énorme écart de niveau." },
-            { date: "Mercredi 9/9 🔥", match: "Stuttgart vs Viking", p1: 55, pn: 22, p2: 23, prono: "1", score: "2-1", conf: 6.0, justif: "Stuttgart domicile + Bundesliga. Viking bon (2e Norvège, PPM 2.32) mais niveau inférieur." },
-            { date: "Mercredi 9/9 🔥", match: "Liverpool vs Atletico Madrid", p1: 52, pn: 25, p2: 23, prono: "1", score: "2-1", conf: 6.5, justif: "Liverpool domicile Anfield (+3% boost). PPM 1.67 vs 1.75 = quasi égal. Domicile crucial." },
-            { date: "Mercredi 9/9 🔥", match: "PSG vs Slovan Bratislava", p1: 62, pn: 20, p2: 18, prono: "1", score: "2-1", conf: 5.5, justif: "⚠️ PSG en CRISE (0V-2N-1P, PPM 0.67!) MAIS domicile + niveau supérieur à Slovan. Confiance modérée." },
-            { date: "Mercredi 9/9 🔥", match: "Sporting CP vs Galatasaray", p1: 42, pn: 28, p2: 30, prono: "1", score: "1-1", conf: 4.8, justif: "Match TRÈS serré. Sporting domicile. Galatasaray leader Süper Lig (PPM 2.5). Confiance basse = incertitude." },
-            { date: "Mercredi 9/9 🔥", match: "Napoli vs Arsenal", p1: 30, pn: 25, p2: 45, prono: "2", score: "1-2", conf: 7.2, justif: "⭐ Arsenal DOMINANT PL (3V-0N-0P, GF 6, GA 1!). Napoli CRISE Serie A (1V-0N-2P). Arsenal 45% > Napoli 30%." },
+// Données depuis localStorage ou defaults
+let appData = loadAppData();
 
-            // JEUDI 10 SEPT
-            { date: "Jeudi 10/9", match: "AEK Athens vs LASK", p1: 50, pn: 28, p2: 22, prono: "1", score: "1-1", conf: 4.5, justif: "AEK domicile. LASK a battu Celtic (5-1). Match serré, confiance basse." },
-            { date: "Jeudi 10/9", match: "Fenerbahce vs Roma", p1: 30, pn: 25, p2: 45, prono: "2", score: "1-2", conf: 7.0, justif: "⭐ Roma LEADER Serie A (3V-0N-0P, GF 10, GA 1, +9!). Fenerbahce PPM 1.5 = niveau inférieur." },
-            { date: "Jeudi 10/9", match: "PSV vs Shakhtar Donetsk", p1: 68, pn: 20, p2: 12, prono: "1", score: "2-0", conf: 7.5, justif: "PSV excellent (PPM 2.60, GF 18/5). Domicile fort. Shakhtar joue exilé. Grande différence." },
-            { date: "Jeudi 10/9", match: "Como vs RB Leipzig", p1: 48, pn: 27, p2: 25, prono: "1", score: "1-1", conf: 5.0, justif: "Como surprise Serie A (PPM 2.33). Leipzig moyen. Domicile Como avantage mais confiance basse." },
-            { date: "Jeudi 10/9", match: "Bayern Munich vs Bodo Glimt", p1: 72, pn: 18, p2: 10, prono: "1", score: "3-1", conf: 7.8, justif: "⭐ Bayern domicile + Kane-power. Bodø/Glimt surprenants (18 matchs unbeaten Norvège!) mais niveau différent." },
-            { date: "Jeudi 10/9", match: "Manchester United vs Sabah", p1: 82, pn: 12, p2: 6, prono: "1", score: "3-0", conf: 8.0, justif: "Man Utd domicile + Premier League. Sabah = qualifié via play-off, niveau très inférieur." },
-            { date: "Jeudi 10/9", match: "Slavia Praha vs Lens", p1: 52, pn: 27, p2: 21, prono: "1", score: "2-1", conf: 6.2, justif: "Slavia LEADER Chance Liga (unbeaten 6 matchs). Domicile fort. Lens en Ligue 1 mais forme moyenne." }
-        ]
-    }
-};
-
-// ===== CHARGER DONNÉES OU VALEURS PAR DÉFAUT =====
-function loadData() {
-    let storedData = localStorage.getItem('analyticsData');
-    if (storedData) {
+function loadAppData() {
+    let stored = localStorage.getItem('analyticsFootV2');
+    if (stored) {
         try {
-            return JSON.parse(storedData);
+            return JSON.parse(stored);
         } catch (e) {
-            console.error("Erreur parsing données", e);
-            return defaultData;
+            console.error("Erreur parsing", e);
+            return APP_DATA;
         }
     }
-    return defaultData;
+    return APP_DATA;
 }
 
-// ===== SAUVEGARDER DONNÉES =====
-function saveData(data) {
-    localStorage.setItem('analyticsData', JSON.stringify(data));
-    document.getElementById('last-update').textContent = new Date().toLocaleDateString('fr-FR');
+function saveAppData() {
+    localStorage.setItem('analyticsFootV2', JSON.stringify(appData));
+    document.getElementById('last-update-date').textContent = new Date().toLocaleDateString('fr-FR');
 }
 
-// ===== INITIALISER APP =====
-let appData = loadData();
-
+// ==================== INITIALISATION ====================
 document.addEventListener('DOMContentLoaded', function() {
-    renderLigue1();
-    renderLDC();
-    renderLessonsLearned();
-    document.getElementById('last-update').textContent = appData.lastUpdate;
+    document.getElementById('last-update-date').textContent = appData.lastUpdate;
+    renderDashboard();
+    renderLigue1(4); // Journée 4 par défaut
+    renderLDC(1);
+    renderHistorique('ligue1');
+    renderLessons();
 });
 
-// ===== RENDU LIGUE 1 =====
-function renderLigue1() {
-    // PPM Table
-    const ppmTable = document.getElementById('ppm-table');
-    ppmTable.innerHTML = '';
+// ==================== NAVIGATION ====================
+function switchView(view) {
+    // Cacher toutes les vues
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    // Retirer active de toutes les nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     
-    let teamsSortedByPPM = Object.entries(appData.ligue1.teams)
-        .sort((a, b) => b[1].ppm - a[1].ppm);
+    // Afficher la vue sélectionnée
+    document.getElementById(view + '-view').classList.add('active');
     
-    teamsSortedByPPM.forEach(([team, stats]) => {
-        let trend = '';
-        if (stats.ppm >= 3.0) trend = '🔥 Excellent';
-        else if (stats.ppm >= 2.3) trend = '✅ Bon';
-        else if (stats.ppm >= 1.5) trend = '🟡 Moyen';
-        else trend = '🔴 Faible';
-        
-        ppmTable.innerHTML += `
-            <tr>
-                <td><strong>${team}</strong></td>
-                <td>${stats.ppm.toFixed(2)}</td>
-                <td>${stats.pts}</td>
-                <td>${stats.j}</td>
-                <td>${trend}</td>
-            </tr>
-        `;
-    });
+    // Activer nav item
+    event.target.closest('.nav-item').classList.add('active');
+    
+    // Mettre à jour le titre
+    const titles = {
+        'dashboard': '📊 Dashboard',
+        'ligue1': '🇫🇷 Ligue 1',
+        'ldc': '🏆 Champions League',
+        'historique': '📚 Historique',
+        'equipes': '🔍 Recherche Équipes',
+        'analytics': '📈 Analytics',
+        'lessons': '🧠 Apprentissage',
+        'settings': '⚙️ Paramètres'
+    };
+    document.getElementById('page-title').textContent = titles[view];
+    
+    // Fermer sidebar sur mobile
+    document.getElementById('sidebar').classList.remove('open');
+    
+    // Render spécifique
+    if (view === 'analytics') renderAnalyticsCharts();
+    if (view === 'lessons') renderLessons();
+}
 
-    // Power Rating Table
-    const powerTable = document.getElementById('power-table');
-    powerTable.innerHTML = '';
-    
-    let teamsSortedByOff = Object.entries(appData.ligue1.teams)
-        .sort((a, b) => b[1].off_power - a[1].off_power);
-    
-    teamsSortedByOff.slice(0, 12).forEach(([team, stats]) => {
-        powerTable.innerHTML += `
-            <tr>
-                <td><strong>${team}</strong></td>
-                <td>${(stats.gf / stats.j).toFixed(2)}</td>
-                <td>${(stats.ga / stats.j).toFixed(2)}</td>
-                <td>${stats.off_power.toFixed(2)}</td>
-                <td>${stats.def_power.toFixed(2)}</td>
-            </tr>
-        `;
-    });
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
 
-    // Confidence Table
-    const confTable = document.getElementById('confidence-table');
-    confTable.innerHTML = '';
-    
-    let teamsSortedByConf = Object.entries(appData.ligue1.teams)
-        .sort((a, b) => b[1].conf - a[1].conf);
-    
-    teamsSortedByConf.forEach(([team, stats]) => {
-        let notation = '';
-        if (stats.conf >= 8) notation = '🔥 Très Fiable';
-        else if (stats.conf >= 7) notation = '✅ Fiable';
-        else if (stats.conf >= 5) notation = '🟡 Modéré';
-        else notation = '🔴 Faible';
-        
-        confTable.innerHTML += `
-            <tr>
-                <td><strong>${team}</strong></td>
-                <td>${stats.conf.toFixed(1)}/10</td>
-                <td>${notation}</td>
-            </tr>
-        `;
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+    // Calculer métriques
+    let allExact = [];
+    Object.values(appData.ligue1.journees).forEach(j => {
+        if (j.exactitude) {
+            allExact.push(parseFloat(j.exactitude));
+        }
     });
-
-    // Classement Table
-    const classTable = document.getElementById('classement-table');
-    classTable.innerHTML = '';
     
-    let teamsSortedByPts = Object.entries(appData.ligue1.teams)
+    const globalExact = allExact.length > 0 
+        ? (allExact.reduce((a,b) => a+b, 0) / allExact.length).toFixed(1) + '%'
+        : 'N/A';
+    
+    document.getElementById('metric-exactitude-global').textContent = globalExact;
+    
+    // Meilleure J
+    let bestJ = 'N/A';
+    let bestScore = 0;
+    Object.entries(appData.ligue1.journees).forEach(([j, data]) => {
+        if (data.exactitude) {
+            const score = parseFloat(data.exactitude);
+            if (score > bestScore) {
+                bestScore = score;
+                bestJ = 'J' + j;
+            }
+        }
+    });
+    document.getElementById('metric-best-j').textContent = bestJ;
+    document.getElementById('metric-best-score').textContent = bestScore + '%';
+    
+    // Total pronos
+    let totalPronos = 0;
+    Object.values(appData.ligue1.journees).forEach(j => totalPronos += j.pronostics.length);
+    Object.values(appData.ldc.journees).forEach(j => totalPronos += j.pronostics.length);
+    document.getElementById('metric-total-pronos').textContent = totalPronos;
+    
+    // Confiance moyenne
+    let confs = [];
+    Object.values(appData.ligue1.journees).forEach(j => confs.push(j.confiance_moy));
+    const confMoy = (confs.reduce((a,b) => a+b, 0) / confs.length).toFixed(1);
+    document.getElementById('metric-confiance').textContent = confMoy;
+    
+    // Charts
+    renderChartExactitude();
+    renderChartDistribution();
+}
+
+function renderChartExactitude() {
+    const ctx = document.getElementById('chart-exactitude');
+    if (!ctx) return;
+    
+    const journees = Object.keys(appData.ligue1.journees);
+    const scores = journees.map(j => {
+        const ex = appData.ligue1.journees[j].exactitude;
+        return ex ? parseFloat(ex) : null;
+    });
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: journees.map(j => 'J' + j),
+            datasets: [{
+                label: 'Exactitude Ligue 1 (%)',
+                data: scores,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 6,
+                pointBackgroundColor: '#6366f1',
+                pointBorderColor: 'white',
+                pointBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    max: 100,
+                    ticks: {
+                        callback: v => v + '%'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderChartDistribution() {
+    const ctx = document.getElementById('chart-distribution');
+    if (!ctx) return;
+    
+    const j4 = appData.ligue1.journees["4"];
+    if (!j4) return;
+    
+    let counts = {"1": 0, "X": 0, "2": 0};
+    j4.pronostics.forEach(p => counts[p.pred]++);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['🏠 Domicile', '🤝 Nul', '✈️ Extérieur'],
+            datasets: [{
+                data: [counts["1"], counts["X"], counts["2"]],
+                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                borderWidth: 3,
+                borderColor: 'white'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+// ==================== LIGUE 1 ====================
+function renderLigue1(journeeNum) {
+    const j = appData.ligue1.journees[journeeNum];
+    if (!j) return;
+    
+    // Update selector
+    document.getElementById('l1-journee-select').value = journeeNum;
+    
+    // Stats de la journée
+    const stats = document.getElementById('l1-journee-stats');
+    stats.innerHTML = `
+        <div class="stat-mini">
+            <span>Date</span>
+            <strong style="font-size:14px">${j.date}</strong>
+        </div>
+        <div class="stat-mini">
+            <span>Matchs</span>
+            <strong>${j.pronostics.length}</strong>
+        </div>
+        <div class="stat-mini">
+            <span>Confiance moy</span>
+            <strong>${j.confiance_moy}/10</strong>
+        </div>
+        <div class="stat-mini">
+            <span>Exactitude</span>
+            <strong>${j.exactitude || '⏳'}</strong>
+        </div>
+    `;
+    
+    // Pronostics
+    const grid = document.getElementById('l1-pronostics-grid');
+    grid.innerHTML = '';
+    
+    j.pronostics.forEach(p => {
+        grid.appendChild(createPronoCard(p));
+    });
+    
+    // Classement
+    renderClassementL1();
+    
+    // Math
+    renderMathL1();
+}
+
+function createPronoCard(p) {
+    const card = document.createElement('div');
+    
+    // Déterminer la couleur selon confiance ou résultat
+    let cardClass = 'prono-card ';
+    if (p.real !== null && p.real !== undefined) {
+        cardClass += p.correct ? 'correct' : 'wrong';
+    } else if (p.conf >= 7) {
+        cardClass += 'high-conf';
+    } else if (p.conf >= 5) {
+        cardClass += 'mid-conf';
+    } else {
+        cardClass += 'low-conf';
+    }
+    card.className = cardClass;
+    
+    // Prono display
+    let pronoDisplay = p.pred;
+    if (p.pred === '1') pronoDisplay = '🏠 Domicile';
+    if (p.pred === 'X') pronoDisplay = '🤝 Nul';
+    if (p.pred === '2') pronoDisplay = '✈️ Extérieur';
+    
+    let probasHTML = '';
+    if (p.p1 !== undefined) {
+        probasHTML = `
+            <div class="prono-probas">
+                <div class="proba-badge ${p.p1 > 45 ? 'high' : ''}">1: ${p.p1}%</div>
+                <div class="proba-badge ${p.pn > 40 ? 'high' : ''}">N: ${p.pn}%</div>
+                <div class="proba-badge ${p.p2 > 45 ? 'high' : ''}">2: ${p.p2}%</div>
+            </div>
+        `;
+    }
+    
+    let justifHTML = p.justif ? `
+        <div class="prono-justif">
+            <p>${p.justif}</p>
+        </div>
+    ` : '';
+    
+    let resultHTML = '';
+    if (p.real !== null && p.real !== undefined) {
+        resultHTML = `
+            <div class="result-real ${p.correct ? 'correct' : 'wrong'}">
+                ${p.correct ? '✅' : '❌'} Résultat réel: <strong>${p.real}</strong>
+            </div>
+        `;
+    }
+    
+    let dateHTML = p.date ? `<div class="prono-date">${p.date}</div>` : '';
+    
+    card.innerHTML = `
+        ${dateHTML}
+        <div class="prono-header">
+            <div class="prono-match">${p.match}</div>
+            <div class="conf-badge">${p.conf.toFixed(1)}/10</div>
+        </div>
+        ${probasHTML}
+        <div class="prono-predi">${pronoDisplay}</div>
+        <div class="prono-score">Score potentiel: <strong>${p.pred_score}</strong></div>
+        ${justifHTML}
+        <div class="confiance-bar">
+            <div class="confiance-fill" style="width: ${p.conf * 10}%"></div>
+        </div>
+        ${resultHTML}
+    `;
+    
+    return card;
+}
+
+function renderClassementL1() {
+    const tbody = document.getElementById('l1-classement');
+    tbody.innerHTML = '';
+    
+    let sorted = Object.entries(appData.ligue1.classement)
         .sort((a, b) => b[1].pts - a[1].pts);
     
-    teamsSortedByPts.forEach(([ team, stats], index) => {
-        let diff = stats.gf - stats.ga;
-        classTable.innerHTML += `
+    sorted.forEach(([team, stats], idx) => {
+        const diff = stats.gf - stats.ga;
+        const formeHTML = stats.forme.map(f => {
+            const color = f === 'V' ? '#10b981' : (f === 'N' ? '#f59e0b' : '#ef4444');
+            return `<span style="display:inline-block;width:24px;height:24px;background:${color};color:white;border-radius:4px;text-align:center;line-height:24px;font-weight:700;font-size:12px;margin-right:2px">${f}</span>`;
+        }).join('');
+        
+        tbody.innerHTML += `
             <tr>
-                <td>${index + 1}</td>
+                <td><strong>${idx + 1}</strong></td>
                 <td><strong>${team}</strong></td>
-                <td>${stats.pts}</td>
+                <td><strong>${stats.pts}</strong></td>
                 <td>${stats.j}</td>
                 <td>${stats.g}</td>
                 <td>${stats.n}</td>
                 <td>${stats.p}</td>
-                <td>${diff > 0 ? '+' : ''}${diff}</td>
+                <td style="color:${diff > 0 ? '#10b981' : (diff < 0 ? '#ef4444' : '#64748b')}">
+                    ${diff > 0 ? '+' : ''}${diff}
+                </td>
+                <td>${formeHTML}</td>
             </tr>
         `;
     });
-
-    // Pronostics J4
-    const pronosContainer = document.getElementById('pronostics-j4');
-    pronosContainer.innerHTML = '';
-    
-    let confTotal = 0;
-    appData.ligue1.pronostics_j4.forEach((prono, idx) => {
-        confTotal += prono.conf;
-        
-        let pronoDisplay = prono.prono;
-        if (prono.prono === '1') pronoDisplay = '🏠 Domicile';
-        if (prono.prono === 'X') pronoDisplay = '🤝 Nul';
-        if (prono.prono === '2') pronoDisplay = '✈️ Extérieur';
-        
-        // Déterminer la couleur de confiance
-        let confColor = '';
-        if (prono.conf >= 7) confColor = 'high-conf';
-        else if (prono.conf >= 5) confColor = 'mid-conf';
-        else confColor = 'low-conf';
-        
-        // Emoji leçon si pertinent
-        let leconEmoji = prono.justif && prono.justif.includes('LEÇON') ? '📚' : '';
-        
-        pronosContainer.innerHTML += `
-            <div class="prono-card ${confColor}">
-                <div class="prono-header">
-                    <div class="prono-match">${leconEmoji} ${prono.match}</div>
-                    <div class="conf-badge-inline">${prono.conf.toFixed(1)}/10</div>
-                </div>
-                
-                <div class="prono-probas">
-                    <div class="proba-badge ${prono.p1 > 45 ? 'high' : ''}" title="Domicile">1: ${prono.p1}%</div>
-                    <div class="proba-badge ${prono.pn > 40 ? 'high' : ''}" title="Nul">N: ${prono.pn}%</div>
-                    <div class="proba-badge ${prono.p2 > 45 ? 'high' : ''}" title="Extérieur">2: ${prono.p2}%</div>
-                </div>
-                
-                <div class="prono-predi">${pronoDisplay}</div>
-                <div class="prono-score">Score potentiel: <strong>${prono.score}</strong></div>
-                
-                <div class="prono-justif">
-                    <strong>Justification:</strong>
-                    <p>${prono.justif || 'Stats pures (argmax %)'}</p>
-                </div>
-                
-                <div class="confiance-bar">
-                    <div class="confiance-fill" style="width: ${prono.conf * 10}%"></div>
-                </div>
-            </div>
-        `;
-    });
-    
-    document.getElementById('conf-avg-j4').textContent = (confTotal / appData.ligue1.pronostics_j4.length).toFixed(1);
-    document.getElementById('exactitude-j3').textContent = '44.4';
 }
 
-// ===== RENDU LEÇONS APPRISES =====
-function renderLessonsLearned() {
-    // Cette fonction s'ajoute à renderLigue1() pour afficher leçons dans Analytics
-    const analyticsTable = document.getElementById('analytics-table');
+function renderMathL1() {
+    const tbody = document.getElementById('l1-math');
+    tbody.innerHTML = '';
     
-    // Ajouter lignes leçons apprises
-    if (appData.ligue1.lecons_apprises) {
-        analyticsTable.innerHTML = '';
+    let sorted = Object.entries(appData.ligue1.math)
+        .sort((a, b) => b[1].conf - a[1].conf);
+    
+    sorted.forEach(([team, math]) => {
+        let statut = '';
+        if (math.conf >= 8) statut = '🔥 Excellent';
+        else if (math.conf >= 7) statut = '✅ Très fiable';
+        else if (math.conf >= 5.5) statut = '🟡 Correct';
+        else if (math.conf >= 4) statut = '🟠 Moyen';
+        else statut = '🔴 En crise';
         
-        // Table historique
-        const rows = [
-            { journee: "J1", exactitude: "66.7%", confiance: "4.4/10", methodo: "Basique (momentum simple)" },
-            { journee: "J2", exactitude: "11.1%", confiance: "4.4/10", methodo: "Momentum trop simple = PIRE" },
-            { journee: "J3", exactitude: "44.4%", confiance: "5.6/10", methodo: "Correction patterns (Strasbourg, PSG)" },
-            { journee: "J4", exactitude: "~50-55% (esp.)", confiance: "6.2/10", methodo: "5 indices math robustes + argmax %" }
-        ];
-        
-        rows.forEach(row => {
-            analyticsTable.innerHTML += `
-                <tr>
-                    <td><strong>${row.journee}</strong></td>
-                    <td>${row.exactitude}</td>
-                    <td>${row.confiance}</td>
-                    <td>${row.methodo}</td>
-                </tr>
-            `;
-        });
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${team}</strong></td>
+                <td>${math.ppm.toFixed(2)}</td>
+                <td>${math.off_power.toFixed(2)}</td>
+                <td>${math.def_power.toFixed(2)}</td>
+                <td><strong>${math.conf.toFixed(1)}/10</strong></td>
+                <td>${statut}</td>
+            </tr>
+        `;
+    });
+}
+
+function changerJournee(delta, type) {
+    const select = document.getElementById(type === 'ligue1' ? 'l1-journee-select' : 'ldc-journee-select');
+    const currentVal = parseInt(select.value);
+    const newVal = currentVal + delta;
+    
+    if (select.querySelector(`option[value="${newVal}"]`)) {
+        select.value = newVal;
+        afficherJournee(newVal, type);
     }
 }
 
-// ===== RENDU LDC =====
-function renderLDC() {
-    // Afficher équipes avec base math
-    const ldcGroups = document.getElementById('ldc-groups');
-    ldcGroups.innerHTML = `
-        <div class="info-box" style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
-            <p style="color: #1e40af; margin: 0;"><strong>⚽ Champions League 2026-2027 - Journée 1</strong></p>
-            <p style="color: #1e40af; margin: 5px 0 0 0;">Analyse basée sur performances dans championnats nationaux (début saison)</p>
+function afficherJournee(num, type) {
+    if (type === 'ligue1') renderLigue1(num);
+    else renderLDC(num);
+}
+
+// ==================== LIGUE DES CHAMPIONS ====================
+function renderLDC(journeeNum) {
+    const j = appData.ldc.journees[journeeNum];
+    if (!j) return;
+    
+    // Stats journée
+    const stats = document.getElementById('ldc-journee-stats');
+    stats.innerHTML = `
+        <div class="stat-mini">
+            <span>Dates</span>
+            <strong style="font-size:14px">${j.date}</strong>
         </div>
-        
-        <h3 style="color: var(--primary); margin-top: 30px;">📊 Confiance des Équipes (Multi-facteurs)</h3>
-        <table class="math-table" style="width: 100%; margin-bottom: 30px;">
-            <thead>
-                <tr>
-                    <th>Équipe</th>
-                    <th>Championnat</th>
-                    <th>PPM</th>
-                    <th>Confiance</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody id="ldc-teams-table"></tbody>
-        </table>
+        <div class="stat-mini">
+            <span>Matchs</span>
+            <strong>${j.pronostics.length}</strong>
+        </div>
+        <div class="stat-mini">
+            <span>Confiance moy</span>
+            <strong>${j.confiance_moy}/10</strong>
+        </div>
+        <div class="stat-mini">
+            <span>Exactitude</span>
+            <strong>${j.exactitude || '⏳'}</strong>
+        </div>
     `;
     
-    // Remplir tableau équipes triées par confiance
-    const teamsTable = document.getElementById('ldc-teams-table');
-    if (appData.ldc && appData.ldc.teams) {
-        let teamsSorted = Object.entries(appData.ldc.teams)
-            .sort((a, b) => b[1].conf - a[1].conf);
-        
-        teamsSorted.forEach(([team, stats]) => {
-            let statut = '';
-            if (stats.conf >= 8) statut = '🔥 Excellent';
-            else if (stats.conf >= 7) statut = '✅ Très fiable';
-            else if (stats.conf >= 5.5) statut = '🟡 Correct';
-            else if (stats.conf >= 4) statut = '🟠 Moyen';
-            else statut = '🔴 Crise/Incertain';
-            
-            teamsTable.innerHTML += `
-                <tr>
-                    <td><strong>${team}</strong></td>
-                    <td>${stats.country}</td>
-                    <td>${stats.ppm.toFixed(2)}</td>
-                    <td>${stats.conf.toFixed(1)}/10</td>
-                    <td>${statut}</td>
-                </tr>
-            `;
-        });
-    }
+    // Pronostics groupés par jour
+    const grid = document.getElementById('ldc-pronostics-grid');
+    grid.innerHTML = '';
     
-    // Afficher pronostics
-    const ldcProno = document.getElementById('ldc-pronostics');
-    ldcProno.innerHTML = '';
+    let currentDate = '';
+    j.pronostics.forEach(p => {
+        if (p.date && p.date !== currentDate) {
+            currentDate = p.date;
+            grid.innerHTML += `<div style="grid-column:1/-1;padding:16px;background:linear-gradient(90deg,#6366f1,#8b5cf6);color:white;border-radius:8px;font-weight:700;margin-top:8px">📅 ${p.date}</div>`;
+        }
+        grid.appendChild(createPronoCard(p));
+    });
     
-    if (appData.ldc && appData.ldc.pronostics_j1) {
-        let currentDate = '';
-        let confTotal = 0;
+    // Table équipes
+    const tbody = document.getElementById('ldc-teams-table');
+    tbody.innerHTML = '';
+    
+    let sorted = Object.entries(appData.ldc.teams)
+        .sort((a, b) => b[1].conf - a[1].conf);
+    
+    sorted.forEach(([team, math]) => {
+        let statut = '';
+        if (math.conf >= 8) statut = '🔥 Excellent';
+        else if (math.conf >= 7) statut = '✅ Très fiable';
+        else if (math.conf >= 5.5) statut = '🟡 Correct';
+        else if (math.conf >= 4) statut = '🟠 Moyen';
+        else statut = '🔴 En crise';
         
-        appData.ldc.pronostics_j1.forEach((prono, idx) => {
-            confTotal += prono.conf;
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${team}</strong></td>
+                <td>${math.country}</td>
+                <td>${math.ppm.toFixed(2)}</td>
+                <td><strong>${math.conf.toFixed(1)}/10</strong></td>
+                <td>${statut}</td>
+            </tr>
+        `;
+    });
+}
+
+// ==================== HISTORIQUE ====================
+function renderHistorique(type) {
+    const content = document.getElementById('histo-content');
+    const source = type === 'ligue1' ? appData.ligue1 : appData.ldc;
+    
+    content.innerHTML = '';
+    
+    Object.entries(source.journees).reverse().forEach(([num, j]) => {
+        const exactColor = j.exactitude ? 
+            (parseFloat(j.exactitude) >= 50 ? '#10b981' : (parseFloat(j.exactitude) >= 30 ? '#f59e0b' : '#ef4444')) 
+            : '#94a3b8';
+        
+        let matchsHTML = '';
+        j.pronostics.forEach(p => {
+            const statusIcon = p.real ? (p.correct ? '✅' : '❌') : '⏳';
+            const bgColor = p.real ? (p.correct ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)') : 'transparent';
             
-            // Ajouter séparateur de date
-            if (prono.date !== currentDate) {
-                ldcProno.innerHTML += `<h3 style="color: var(--primary); grid-column: 1/-1; margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--secondary);">${prono.date}</h3>`;
-                currentDate = prono.date;
-            }
-            
-            let pronoDisplay = prono.prono;
-            if (prono.prono === '1') pronoDisplay = '🏠 Domicile';
-            if (prono.prono === 'X') pronoDisplay = '🤝 Nul';
-            if (prono.prono === '2') pronoDisplay = '✈️ Extérieur';
-            
-            let confColor = '';
-            if (prono.conf >= 7) confColor = 'high-conf';
-            else if (prono.conf >= 5) confColor = 'mid-conf';
-            else confColor = 'low-conf';
-            
-            let leconEmoji = prono.justif && prono.justif.includes('⭐') ? '⭐' : (prono.justif && prono.justif.includes('⚠️') ? '⚠️' : '');
-            
-            ldcProno.innerHTML += `
-                <div class="prono-card ${confColor}">
-                    <div class="prono-header">
-                        <div class="prono-match">${leconEmoji} ${prono.match}</div>
-                        <div class="conf-badge-inline">${prono.conf.toFixed(1)}/10</div>
+            matchsHTML += `
+                <div style="padding:12px;border-bottom:1px solid #e2e8f0;background:${bgColor};display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <strong>${p.match}</strong>
+                        <div style="font-size:12px;color:#64748b;margin-top:4px">
+                            Prédit: ${p.pred} (${p.pred_score}) - Confiance ${p.conf}/10
+                            ${p.real ? ` | Réel: <strong>${p.real}</strong>` : ''}
+                        </div>
                     </div>
-                    <div class="prono-probas">
-                        <div class="proba-badge ${prono.p1 > 45 ? 'high' : ''}">1: ${prono.p1}%</div>
-                        <div class="proba-badge ${prono.pn > 40 ? 'high' : ''}">N: ${prono.pn}%</div>
-                        <div class="proba-badge ${prono.p2 > 45 ? 'high' : ''}">2: ${prono.p2}%</div>
-                    </div>
-                    <div class="prono-predi">${pronoDisplay}</div>
-                    <div class="prono-score">Score potentiel: <strong>${prono.score}</strong></div>
-                    <div class="prono-justif">
-                        <strong>Analyse:</strong>
-                        <p>${prono.justif}</p>
-                    </div>
-                    <div class="confiance-bar">
-                        <div class="confiance-fill" style="width: ${prono.conf * 10}%"></div>
-                    </div>
+                    <div style="font-size:24px">${statusIcon}</div>
                 </div>
             `;
         });
         
-        // Ajouter statistiques
-        const avgConf = confTotal / appData.ldc.pronostics_j1.length;
-        ldcProno.innerHTML += `
-            <div class="stats-footer" style="grid-column: 1/-1; margin-top: 30px;">
-                <span>Total matchs: <strong>${appData.ldc.pronostics_j1.length}</strong></span>
-                <span>Confiance moyenne: <strong>${avgConf.toFixed(1)}/10</strong></span>
-                <span>Journée 1 - 8, 9 et 10 Sept 2026</span>
+        content.innerHTML += `
+            <div class="section-block">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h2 style="margin:0;border:none;padding:0">${j.nom}</h2>
+                    <div style="text-align:right">
+                        <div style="font-size:12px;color:#64748b">${j.date}</div>
+                        <div style="font-size:24px;font-weight:800;color:${exactColor}">
+                            ${j.exactitude || '⏳ En attente'}
+                        </div>
+                    </div>
+                </div>
+                ${matchsHTML}
             </div>
         `;
+    });
+}
+
+function switchHistoTab(type) {
+    document.querySelectorAll('.tab-sec').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    renderHistorique(type);
+}
+
+// ==================== RECHERCHE ÉQUIPES ====================
+function rechercherEquipe(query) {
+    const results = document.getElementById('team-results');
+    
+    if (!query || query.length < 2) {
+        results.innerHTML = '<p style="text-align:center;color:#64748b;padding:40px">Tape au moins 2 caractères pour chercher...</p>';
+        return;
+    }
+    
+    const lowerQuery = query.toLowerCase();
+    let matches = [];
+    
+    // Chercher dans Ligue 1
+    Object.entries(appData.ligue1.math).forEach(([team, math]) => {
+        if (team.toLowerCase().includes(lowerQuery)) {
+            matches.push({ team, math, class: appData.ligue1.classement[team], competition: 'Ligue 1' });
+        }
+    });
+    
+    // Chercher dans LDC
+    Object.entries(appData.ldc.teams).forEach(([team, math]) => {
+        if (team.toLowerCase().includes(lowerQuery)) {
+            const existing = matches.find(m => m.team === team);
+            if (!existing) {
+                matches.push({ team, math, competition: 'LDC / ' + (math.country || '') });
+            }
+        }
+    });
+    
+    if (matches.length === 0) {
+        results.innerHTML = '<p style="text-align:center;color:#64748b;padding:40px">Aucune équipe trouvée</p>';
+        return;
+    }
+    
+    results.innerHTML = '';
+    matches.forEach(m => {
+        // Chercher tous les pronos de cette équipe
+        let pronos = [];
+        Object.entries(appData.ligue1.journees).forEach(([num, j]) => {
+            j.pronostics.forEach(p => {
+                if (p.match.includes(m.team)) {
+                    pronos.push({ ...p, journee: 'J' + num, competition: 'Ligue 1' });
+                }
+            });
+        });
+        Object.entries(appData.ldc.journees).forEach(([num, j]) => {
+            j.pronostics.forEach(p => {
+                if (p.match.includes(m.team)) {
+                    pronos.push({ ...p, journee: 'J' + num, competition: 'LDC' });
+                }
+            });
+        });
+        
+        let correct = pronos.filter(p => p.correct === true).length;
+        let wrong = pronos.filter(p => p.correct === false).length;
+        let pending = pronos.filter(p => p.correct === undefined || p.correct === null).length;
+        
+        let pronosHTML = pronos.map(p => {
+            const icon = p.correct === true ? '✅' : (p.correct === false ? '❌' : '⏳');
+            return `
+                <div style="padding:12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <strong>${p.match}</strong>
+                        <div style="font-size:12px;color:#64748b">${p.competition} • ${p.journee}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div>Prédit: <strong>${p.pred}</strong> (${p.conf}/10)</div>
+                        ${p.real ? `<div style="font-size:12px;color:#64748b">Réel: ${p.real}</div>` : ''}
+                    </div>
+                    <div style="font-size:24px;margin-left:12px">${icon}</div>
+                </div>
+            `;
+        }).join('');
+        
+        results.innerHTML += `
+            <div class="section-block">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <div>
+                        <h2 style="margin:0;border:none;padding:0">${m.team}</h2>
+                        <p style="color:#64748b;margin-top:4px">${m.competition}</p>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:32px;font-weight:800;color:#6366f1">${m.math.conf.toFixed(1)}/10</div>
+                        <div style="font-size:12px;color:#64748b">Confiance</div>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid-small" style="margin-bottom:20px">
+                    <div class="stat-mini">
+                        <span>PPM</span>
+                        <strong>${m.math.ppm.toFixed(2)}</strong>
+                    </div>
+                    ${m.class ? `
+                    <div class="stat-mini">
+                        <span>Points</span>
+                        <strong>${m.class.pts}</strong>
+                    </div>
+                    <div class="stat-mini">
+                        <span>Buts pour</span>
+                        <strong>${m.class.gf}</strong>
+                    </div>
+                    <div class="stat-mini">
+                        <span>Buts contre</span>
+                        <strong>${m.class.ga}</strong>
+                    </div>
+                    ` : ''}
+                    <div class="stat-mini">
+                        <span>Correct/Total</span>
+                        <strong>${correct}/${pronos.length}</strong>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom:12px">Historique Pronostics</h3>
+                ${pronosHTML || '<p style="color:#64748b">Aucun pronostic pour cette équipe</p>'}
+            </div>
+        `;
+    });
+}
+
+// ==================== ANALYTICS AVANCÉS ====================
+function renderAnalyticsCharts() {
+    // Chart Exactitude Full
+    const ctx1 = document.getElementById('chart-exactitude-full');
+    if (ctx1) {
+        const journees = Object.keys(appData.ligue1.journees);
+        const scores = journees.map(j => {
+            const ex = appData.ligue1.journees[j].exactitude;
+            return ex ? parseFloat(ex) : null;
+        });
+        
+        // Détruire chart existant si présent
+        if (window.chartExactFull) window.chartExactFull.destroy();
+        
+        window.chartExactFull = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: journees.map(j => 'J' + j),
+                datasets: [{
+                    label: 'Exactitude (%)',
+                    data: scores,
+                    backgroundColor: scores.map(s => s >= 50 ? '#10b981' : (s >= 30 ? '#f59e0b' : '#ef4444')),
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    }
+    
+    // Chart Distribution résultats
+    const ctx2 = document.getElementById('chart-results');
+    if (ctx2) {
+        let counts = {"1": 0, "X": 0, "2": 0};
+        Object.values(appData.ligue1.journees).forEach(j => {
+            j.pronostics.forEach(p => {
+                if (p.pred) counts[p.pred]++;
+            });
+        });
+        
+        if (window.chartResults) window.chartResults.destroy();
+        
+        window.chartResults = new Chart(ctx2, {
+            type: 'polarArea',
+            data: {
+                labels: ['🏠 Victoires Domicile', '🤝 Nuls', '✈️ Victoires Extérieur'],
+                datasets: [{
+                    data: [counts["1"], counts["X"], counts["2"]],
+                    backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)', 'rgba(59,130,246,0.7)']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+    
+    // Chart Confiance vs Exactitude
+    const ctx3 = document.getElementById('chart-conf-exact');
+    if (ctx3) {
+        const journees = Object.keys(appData.ligue1.journees);
+        const confs = journees.map(j => appData.ligue1.journees[j].confiance_moy * 10);
+        const exacts = journees.map(j => {
+            const ex = appData.ligue1.journees[j].exactitude;
+            return ex ? parseFloat(ex) : 0;
+        });
+        
+        if (window.chartConfExact) window.chartConfExact.destroy();
+        
+        window.chartConfExact = new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: journees.map(j => 'J' + j),
+                datasets: [
+                    {
+                        label: 'Confiance (/100)',
+                        data: confs,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245,158,11,0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Exactitude (%)',
+                        data: exacts,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99,102,241,0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
     }
 }
 
-// ===== SWITCH TABS =====
-function switchTab(tabName) {
-    // Masquer tous les tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
+// ==================== LEÇONS APPRISES ====================
+function renderLessons() {
+    const timeline = document.getElementById('lessons-timeline');
+    timeline.innerHTML = '';
+    
+    appData.lecons.forEach(lecon => {
+        timeline.innerHTML += `
+            <div class="lesson-item ${lecon.type}">
+                <span class="lesson-journee">${lecon.journee}</span>
+                <div class="lesson-title">${lecon.titre}</div>
+                ${lecon.erreur ? `<div class="lesson-erreur">❌ <strong>Erreur:</strong> ${lecon.erreur}</div>` : ''}
+                <div class="lesson-apprentissage">💡 <strong>Apprentissage:</strong> ${lecon.apprentissage}</div>
+                <div style="font-size:12px;color:#94a3b8;margin-top:8px">📅 ${lecon.date}</div>
+            </div>
+        `;
     });
-    
-    // Masquer tous les boutons actifs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Activer le tab sélectionné
-    document.getElementById(tabName + '-tab').classList.add('active');
-    
-    // Activer le bouton
-    event.target.classList.add('active');
 }
 
-// ===== MODAL UPDATE =====
-function openUpdateModal() {
-    document.getElementById('updateModal').classList.add('open');
+function ajouterLecon() {
+    const title = document.getElementById('lesson-title').value.trim();
+    const content = document.getElementById('lesson-content').value.trim();
+    
+    if (!title || !content) {
+        alert('⚠️ Remplis le titre et la description');
+        return;
+    }
+    
+    const lastJourneeNum = Math.max(...Object.keys(appData.ligue1.journees).map(Number));
+    
+    appData.lecons.push({
+        journee: 'J' + lastJourneeNum,
+        type: 'success',
+        titre: title,
+        erreur: null,
+        apprentissage: content,
+        date: new Date().toLocaleDateString('fr-FR')
+    });
+    
+    saveAppData();
+    document.getElementById('lesson-title').value = '';
+    document.getElementById('lesson-content').value = '';
+    renderLessons();
+    alert('✅ Leçon sauvegardée!');
 }
 
-function closeUpdateModal() {
-    document.getElementById('updateModal').classList.remove('open');
+// ==================== SETTINGS ====================
+function openImportModal() {
+    document.getElementById('importModal').classList.add('open');
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').classList.remove('open');
 }
 
 function importJSON() {
-    const jsonInput = document.getElementById('jsonInput').value;
-    
-    if (!jsonInput.trim()) {
-        alert('Veuillez coller un JSON valide');
+    const input = document.getElementById('jsonInput').value.trim();
+    if (!input) {
+        alert('⚠️ Colle un JSON valide');
         return;
     }
     
     try {
-        const newData = JSON.parse(jsonInput);
+        const newData = JSON.parse(input);
+        // Merger avec les données existantes
         appData = { ...appData, ...newData };
-        saveData(appData);
-        renderLigue1();
-        renderLDC();
-        closeUpdateModal();
-        alert('✅ Données importées avec succès!');
+        saveAppData();
+        location.reload();
     } catch (e) {
         alert('❌ JSON invalide: ' + e.message);
     }
 }
 
-function downloadData() {
+function exporterDonnees() {
     const dataStr = JSON.stringify(appData, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `analytics-foot-J${appData.journee}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
+    link.download = `analytics-foot-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
-    document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
 
-function resetData() {
-    if (confirm('⚠️ Êtes-vous sûr? Cela réinitialisera TOUTES les données!')) {
-        localStorage.removeItem('analyticsData');
-        appData = defaultData;
-        renderLigue1();
-        renderLDC();
-        alert('✅ Données réinitialisées');
+function reinitialiser() {
+    if (confirm('⚠️ Vraiment? Cela réinitialisera TOUTES les données!')) {
+        localStorage.removeItem('analyticsFootV2');
+        location.reload();
     }
 }
 
-// Fermer modal en cliquant en dehors
-window.onclick = function(event) {
-    let modal = document.getElementById('updateModal');
-    if (event.target == modal) {
-        modal.classList.remove('open');
+function openResultsModal() {
+    const modal = document.getElementById('resultsModal');
+    const form = document.getElementById('results-form');
+    
+    // Trouver dernière journée sans résultats
+    let journeeAJouer = null;
+    Object.entries(appData.ligue1.journees).forEach(([num, j]) => {
+        if (!j.exactitude) {
+            journeeAJouer = num;
+        }
+    });
+    
+    if (!journeeAJouer) {
+        form.innerHTML = '<p>✅ Toutes les journées sont complètes!</p>';
+        modal.classList.add('open');
+        return;
     }
+    
+    const j = appData.ligue1.journees[journeeAJouer];
+    form.innerHTML = `
+        <h3 style="margin-bottom:16px">Journée ${journeeAJouer} - ${j.date}</h3>
+        <div id="results-inputs">
+            ${j.pronostics.map((p, idx) => `
+                <div style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px">
+                    <strong>${p.match}</strong>
+                    <div style="font-size:12px;color:#64748b;margin:4px 0">
+                        Prédit: ${p.pred} (${p.pred_score})
+                    </div>
+                    <input type="text" 
+                        placeholder="Résultat réel (ex: 2-1)" 
+                        id="result-${idx}"
+                        style="width:100%;padding:8px;border:2px solid #e2e8f0;border-radius:6px;margin-top:8px">
+                </div>
+            `).join('')}
+        </div>
+        <button onclick="sauvegarderResultats(${journeeAJouer})" class="btn-primary" style="width:100%;margin-top:16px">
+            💾 Sauvegarder tous les résultats
+        </button>
+    `;
+    
+    modal.classList.add('open');
 }
+
+function closeResultsModal() {
+    document.getElementById('resultsModal').classList.remove('open');
+}
+
+function sauvegarderResultats(journeeNum) {
+    const j = appData.ligue1.journees[journeeNum];
+    let correctCount = 0;
+    
+    j.pronostics.forEach((p, idx) => {
+        const input = document.getElementById(`result-${idx}`).value.trim();
+        if (input) {
+            p.real = input;
+            // Déterminer si correct (comparer prono avec résultat)
+            const parts = input.split('-');
+            if (parts.length === 2) {
+                const g1 = parseInt(parts[0]);
+                const g2 = parseInt(parts[1]);
+                let realPred = 'X';
+                if (g1 > g2) realPred = '1';
+                if (g2 > g1) realPred = '2';
+                p.correct = (p.pred === realPred);
+                if (p.correct) correctCount++;
+            }
+        }
+    });
+    
+    // Calculer exactitude
+    const exactitude = ((correctCount / j.pronostics.length) * 100).toFixed(1) + '%';
+    j.exactitude = exactitude;
+    
+    saveAppData();
+    closeResultsModal();
+    alert(`✅ Résultats sauvegardés! Exactitude: ${exactitude}`);
+    location.reload();
+}
+
+// Fermer modals en cliquant en dehors
+window.onclick = function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('open');
+    }
+};
